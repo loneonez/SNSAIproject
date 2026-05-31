@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:practice/screen/myProfile/my_profile.dart';
 
-class LeftTab extends StatelessWidget {
+class LeftTab extends StatefulWidget {
   const LeftTab({super.key});
 
+  @override
+  State<LeftTab> createState() => _LefttabState();
+}
+
+class _LefttabState extends State<LeftTab> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -57,7 +63,12 @@ class LeftTab extends StatelessWidget {
         style: const TextStyle(color: Colors.white, fontSize: 16),
       ),
       onTap: () {
-        // タップした時の処理（画面遷移など）をここに書く
+        if (title == 'プロフィール') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MyProfile()),
+          );
+        }
         print('$title が押されました');
       },
     );

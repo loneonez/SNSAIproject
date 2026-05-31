@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "809575672663",
+    "project_id": "aisproject-80b23",
+    "storage_bucket": "aisproject-80b23.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809575672663:android:56aceb2667d38830a06c12",
+        "android_client_info": {
+          "package_name": "com.example.practice"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWhvUjqPsjHXpuJaFMtV3g3DDmdegq298"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

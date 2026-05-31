@@ -56,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // 前に作ったガラスのボトムバーを一番下に浮かせる
           const Align(
             alignment: Alignment.bottomCenter,
-            child: ScreenBottomBar(),
+            //child: ScreenBottomBar(),
           ),
         ],
       ),

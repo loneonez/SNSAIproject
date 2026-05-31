@@ -49,7 +49,7 @@ class _StartScreenState extends State<StartScreen> {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.blue, Colors.white],
+          colors: [Color(0xFF2196F3), Colors.white],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),

@@ -1,7 +1,17 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:practice/screen/start_screen.dart';
+import 'package:practice/screen/startScreen/start_screen.dart';
+import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
+void main() async {
+  //flutterの初期化処理が完全に終わるのを待つ
+  WidgetsFlutterBinding.ensureInitialized();
+
+  //firebaseをアプリ起動時に初期化する
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const MyApp());
 }
 
