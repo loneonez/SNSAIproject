@@ -5,14 +5,39 @@ class GeminiService {
   // 動作：文章生成用のGemini 2.5 Flashを設定（画像URLの組み立てもこれ1つでやるよ！）
   final _textModel = GenerativeModel(
     model: 'gemini-2.5-flash',
-    apiKey: 'AIzaSyA0Z9oAq9ZbFSsFBeB5KZX_rc5friPKt1Y', // 💡 ゆうたくんのAPIキーを入れてね
+    apiKey: 'AQ.Ab8RN6JrPIwaHSs75s1j9zJOlPaYLM4Whdx_N9u49GBBsGLtOw',
   );
+
+  // 💡 動作：特定の指示書（プロンプト）をGeminiに送り、返ってきた返信テキストを返す関数
+  Future<String?> askGemini(String prompt) async {
+    try {
+      print("Geminiに返信をリクエスト中...");
+
+      // 動作：引数で受け取ったprompt（指示書）を、Geminiが扱えるContent型に変換します
+      final content = [Content.text(prompt)];
+
+      // 動作：Geminiモデルを呼び出して、文章を生成します（2.5-flashが走ります）
+      final response = await _textModel.generateContent(content);
+
+      // 動作：生成されたテキストを取り出します
+      final responseText = response.text;
+
+      if (responseText != null) {
+        print("Geminiからの返信生成に成功しました！");
+        return responseText.trim(); // 動作：前後の余計な空白を削って返します
+      }
+    } catch (e) {
+      // 動作：APIキーの期限切れや通信エラーなどのトラブルが起きた場合、ログを出します
+      print("Gemini APIエラー: $e");
+    }
+    return null; // 動作：エラーが起きた場合は空（null）を返します
+  }
 
   // 動作：AI投稿と画像アイコンのURLを同時に生成する関数
   Future<Map<String, dynamic>?> generateAiPost() async {
     print("AI投稿と最適な画像URLを生成中...");
 
-    // 💡 動作：プロンプトの魔改造！GeminiにPicsumの画像ID（1〜1000）をキャラに合わせて選ばせる
+    // 💡 動作：プロンプトの魔改造！GeminiにPicsum of Webpageの画像ID（1〜1000）をキャラに合わせて選ばせる
     const textPrompt = """
 あなたはSNSのユーザーです。学校生活や日常の出来事について、様々なキャラクターになりきって10〜100文字以内で呟いてください。
 また、そのキャラクターの見た目（性別、年齢、雰囲気など）に最もマッチする「画像のシリアル番号（1から1000の間の数字）」を1つ厳選してください。
@@ -49,8 +74,8 @@ class GeminiService {
         final String userName = data['name'] ?? 'user';
         final String keyword = data['keyword'] ?? 'cat';
 
-        // 🔥 変更点：名前（userName）とキーワード（keyword）を組み合わせてURLを作る！
-        // 💡 仕組み：これで「girl（女の子）」という同じキーワードでも、名前が違えば100%違う見た目の猫ちゃんが生成されるぜ！
+        // 💡 動作：名前（userName）とキーワード（keyword）を組み合わせてURLを作る！
+        // これで「girl（女の子）」という同じキーワードでも、名前が違えば100%違う見た目の猫ちゃんが生成されるよ！
         final String roboUrl = 'https://robohash.org/${keyword}_${userName}';
 
         print("生成完了！ 画像URL: $roboUrl");

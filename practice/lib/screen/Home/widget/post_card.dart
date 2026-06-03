@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:practice/screen/Home/widget/post_card.dart';
+import 'package:practice/screen/Home/widget/coment_screen.dart';
 import 'package:practice/screen/localUserProfile/local_user.dart';
 import 'package:practice/screen/localUserProfile/widget/user_icon.dart';
 
@@ -7,19 +7,25 @@ import 'package:practice/screen/localUserProfile/widget/user_icon.dart';
 class PostCard extends StatelessWidget {
   final Map<String, dynamic> post; // 動作：表示する1件分の投稿データ
   final VoidCallback onFavoriteTap; // 動作：いいねが押された時の処理
+  final VoidCallback onShareTap; // 動作：共有が押された時の処理
+  final VoidCallback onCommentTap; // 動作：コメントが押された時の処理
   final VoidCallback onUserTap; // 動作：アイコンや名前が押された時の処理
 
   const PostCard({
     super.key,
     required this.post,
     required this.onFavoriteTap,
+    required this.onShareTap,
+    required this.onCommentTap,
     required this.onUserTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    //いいねが押されていない場合falseにする
+    // 動作：いいね、共有の状態やカウントを取得（データがなければ初期値をセット）
     final bool isFavorite = post['isFavorite'] ?? false;
+    final bool isShared = post['isShared'] ?? false;
+    final int shareCount = post['shareCount'] ?? 0;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -30,7 +36,7 @@ class PostCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 動作：ユーザーアイコン部分（タップしたらプロフ画面に飛べるようにGestureDetectorで囲む）
+            // 動作：ユーザーアイコン部分
             GestureDetector(
               onTap: () => Navigator.push(
                 context,
@@ -38,7 +44,7 @@ class PostCard extends StatelessWidget {
                   builder: (context) => LocalUser(userData: post),
                 ),
               ),
-              child: UserIcon(userData: post), // 🔥 自作のUserIconをここで綺麗に使い回し！
+              child: UserIcon(userData: post),
             ),
             const SizedBox(width: 12),
 
@@ -47,7 +53,7 @@ class PostCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 動作：ユーザー名の表示（こちらもタップでプロフに飛べるように）
+                  // 動作：ユーザー名の表示
                   GestureDetector(
                     onTap: onUserTap,
                     child: Text(
@@ -60,6 +66,7 @@ class PostCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
+
                   // 動作：投稿本文
                   Text(
                     post['content'] ?? '',
@@ -71,22 +78,52 @@ class PostCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // 💬 コメントボタン
+                      // 💡 動作：中身を無理やり画面遷移させず、親から渡されたコメント用処理をそのまま実行するようにスッキリ直したよ！
                       _buildIconButton(
                         Icons.chat_bubble_outline,
                         Colors.grey,
-                        () {},
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CommentScreen(post: post),
+                            ),
+                          );
+                        },
                       ),
+
+                      // 🔁 リポストボタン（仮の処理）
                       _buildIconButton(Icons.repeat, Colors.grey, () {}),
-                      // 動作：いいねボタン（状態によってアイコンと色を切り替える）
+
+                      // ❤️ いいねボタン
                       _buildIconButton(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
                         isFavorite ? Colors.pink : Colors.grey,
-                        onFavoriteTap, // 動作：親から渡されたいいね処理を実行
+                        onFavoriteTap,
                       ),
-                      _buildIconButton(
-                        Icons.share_outlined,
-                        Colors.grey,
-                        () {},
+
+                      // 🟢 共有ボタン（横並びにしてアイコンの横に数字を表示）
+                      Row(
+                        children: [
+                          _buildIconButton(
+                            isShared ? Icons.share : Icons.share_outlined,
+                            isShared
+                                ? Colors.green
+                                : Colors.grey, // 動作：共有中なら緑に光る
+                            onShareTap, // 動作：親から届いた共有処理を実行
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '$shareCount', // 動作：共有カウント数を表示
+                            style: TextStyle(
+                              color: isShared
+                                  ? Colors.green
+                                  : Colors.grey, // 動作：数字も連動
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -99,7 +136,7 @@ class PostCard extends StatelessWidget {
     );
   }
 
-  // 動作：アイコンボタンを生成する補助関数
+  // 動作：アイコンボタンをきれいに配置するための補助関数
   Widget _buildIconButton(IconData icon, Color color, VoidCallback onPressed) {
     return IconButton(
       constraints: const BoxConstraints(),

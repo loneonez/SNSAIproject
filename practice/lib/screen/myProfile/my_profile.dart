@@ -4,21 +4,23 @@ import 'package:practice/screen/myProfile/widget/my_tab.dart';
 import 'package:practice/screen/myProfile/widget/profile_icon.dart';
 import 'package:practice/screen/myProfile/widget/empty_state_view.dart';
 
-// 💡 動作：マイプロフィール画面（いいねした投稿などを表示する）
+// 動作：マイプロフィール画面（いいねした投稿などを表示する）
 class MyProfile extends StatelessWidget {
-  // 🔥 変更点1：いいねされた「投稿データのリスト」を受け取る窓口を作る！
+  // 動作：いいねされた「投稿データのリスト」を受け取る窓口
   final List<Map<String, dynamic>> likedPosts;
 
-
-  // 🔥 変更点2：いいねを解除したときに、親画面のリストも更新するための関数（コールバック）を受け取る窓口を作る！
+  // 動作：いいねを解除したときに、親画面のリストも更新するための関数
   final Function(Map<String, dynamic>) onFavoriteToggle;
+  final Function(Map<String, dynamic>) onShareToggle; // 動作：追加
+  final Function(Map<String, dynamic>) onChatBubbleOutline;
 
-  // 動作：コンストラクタで、上の2つのデータを必須（required）で受け取るようにする
+  // 動作：コンストラクタで、上のデータを必須（required）で受け取る
   const MyProfile({
     super.key,
     required this.likedPosts,
     required this.onFavoriteToggle,
-    
+    required this.onShareToggle, // 動作：追加
+    required this.onChatBubbleOutline,
   });
 
   @override
@@ -55,25 +57,27 @@ class MyProfile extends StatelessWidget {
                   const EmptyStateView(
                     message: 'まだコメントがありません',
                   ), // 動作：コメント用の中身（仮）
-                  // 🔥 変更点3：Collection-If を使って、受け取ったいいねリストが空かどうかで綺麗に分岐！
-                  if (favoritePosts.isEmpty)
+                  // 動作：Collection-If を使って、受け取ったいいねリストが空かどうかで綺麗に分岐！
+                  if (likedPosts.isEmpty)
                     const EmptyStateView(
                       message: 'まだいいねがありません',
                     ) // 動作：いいねした投稿が0件のとき
                   else
                     ListView.builder(
-                      itemCount: favoritePosts.length, // 動作：いいねされた件数を指定
+                      itemCount: likedPosts.length, // 動作：いいねされた件数を指定
                       itemBuilder: (context, index) {
                         // 動作：いいねしたリストの中から、現在の順番のデータを取り出す
-                        final post = favoritePosts[index];
+                        final post = likedPosts[index];
 
-                        // 動作：共通のPostCardを使って表示する
+                        // 動作：共通のPostCardを使って表示する（窓口をすべて埋める）
                         return PostCard(
                           post: post,
-                          // 🔥 変更点4：いいねボタンが押されたら、親から渡された解除用関数を実行する！
                           onFavoriteTap: () => onFavoriteToggle(post),
+                          onShareTap: () => onShareToggle(post), // 動作：追加
+                          onCommentTap: () =>
+                              onChatBubbleOutline(post), // 動作：名前を合わせて修正
                           onUserTap: () {
-                            // 動作：自分のアイコンタップ時の動き（必要であればここにプロフィールを開くなどの処理を書くよ）
+                            // 動作：自分のアイコンタップ時の動き
                           },
                         );
                       },
