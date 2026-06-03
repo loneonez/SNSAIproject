@@ -93,17 +93,17 @@ class PostCard extends StatelessWidget {
                         },
                       ),
 
-                      // 🔁 リポストボタン（仮の処理）
+                      // リポストボタン（仮の処理）
                       _buildIconButton(Icons.repeat, Colors.grey, () {}),
 
-                      // ❤️ いいねボタン
+                      //  いいねボタン
                       _buildIconButton(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
                         isFavorite ? Colors.pink : Colors.grey,
                         onFavoriteTap,
                       ),
 
-                      // 🟢 共有ボタン（横並びにしてアイコンの横に数字を表示）
+                      // 共有ボタン（横並びにしてアイコンの横に数字を表示）
                       Row(
                         children: [
                           _buildIconButton(

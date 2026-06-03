@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:practice/screen/Home/service/gemini_service.dart';
+import 'package:practice/screen/localUserProfile/widget/user_icon.dart';
 
 // 動作：特定の投稿に対するコメント一覧の表示と、AIキャラからの返信機能を持つ画面
 class CommentScreen extends StatefulWidget {
@@ -37,7 +38,12 @@ class _CommentScreenState extends State<CommentScreen> {
     if (postId == null) return;
 
     try {
-      // 💡 1. ユーザー自身のコメントをFirestoreのサブコレクション「comments」に保存します
+      //ユーザーのアイコンをfirebaseに保存する
+      final String userIconUrl =
+          widget.post['user_icon_url'] ?? 'https://robohash.org/yuta_user';
+
+      //ユーザー自身のコメントをFirestoreのサブコレクション「comments」に保存します
+
       await FirebaseFirestore.instance
           .collection('posts')
           .doc(postId)
@@ -52,9 +58,11 @@ class _CommentScreenState extends State<CommentScreen> {
       // 💡 2. 投稿主であるAIキャラクターのプロンプト（role）を使って、Geminiで自動返信を作成します
       final String aiRole = widget.post['role'] ?? 'フレンドリーな大学生。優しく接してね。';
       final String aiName = widget.post['user'] ?? 'AIアシスタント';
+      final String aiIconUrl =
+          widget.post['icon_url'] ?? 'https://robohash.org/ai_default';
 
-      // 💡 Geminiに送るための指示メッセージ（プロンプト）を作ります
-      // キャラクターの個性が活きるよう、キャラクター設定（role）をGeminiに流し込みます
+      //Geminiに送るための指示メッセージ（プロンプト）を作る
+      //キャラクターの個性が活きるよう、キャラクター設定（role）をGeminiに流し込みます
       final String aiPrompt =
           '''
 あなたはSNSアプリのキャラクター「$aiName」です。
@@ -83,6 +91,7 @@ SNSの返信なので、丁寧すぎるよりは、フランクで友達に話�
               'content': aiReply,
               'createdAt': FieldValue.serverTimestamp(),
               'isAi': true, // 動作：AIなのでtrue
+              'icon?url': aiIconUrl,
             });
       }
     } catch (e) {
@@ -114,10 +123,8 @@ SNSの返信なので、丁寧すぎるよりは、フランクで友達に話�
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const CircleAvatar(
-                  backgroundColor: Colors.blueAccent,
-                  child: Icon(Icons.person, color: Colors.white),
-                ),
+                UserIcon(userData: widget.post),
+
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -182,6 +189,7 @@ SNSの返信なので、丁寧すぎるよりは、フランクで友達に話�
 
                       final commentDocs = snapshot.data!.docs;
 
+                      //ユーザーがコメントを返した際、AI自身もコメントを返す
                       return ListView.builder(
                         itemCount: commentDocs.length,
                         itemBuilder: (context, index) {
@@ -201,16 +209,9 @@ SNSの返信なので、丁寧すぎるよりは、フランクで友達に話�
                               children: [
                                 // 動作：ユーザーとAIでアバターの色を変えて見やすくします
                                 CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: isAi
-                                      ? Colors.pinkAccent
-                                      : Colors.blueAccent,
-                                  child: Icon(
-                                    isAi ? Icons.auto_awesome : Icons.person,
-                                    size: 14,
-                                    color: Colors.white,
-                                  ),
+                                  child: UserIcon(userData: commentData),
                                 ),
+
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
