@@ -76,27 +76,54 @@ class GeminiService {
         // 動作：テキストからJSON（Map型）に変換
         final Map<String, dynamic> data = jsonDecode(cleanJson);
 
-        // 動作：AIが考えてくれた「名前」と「キーワード」を安全に取得
-        final String userName = data['name'] ?? 'user';
-        final String keyword = data['keyword'] ?? 'cat';
+        final String userName = data['name']?.toString() ?? 'user';
+        final String iconUrl = _buildAvatarUrl(
+          userName: userName,
+          avatarSet: data['avatar_set'],
+          seedNumber: data['seed_number'],
+        );
 
-        // 💡 動作：名前（userName）とキーワード（keyword）を組み合わせてURLを作る！
-        // これで「girl（女の子）」という同じキーワードでも、名前が違えば100%違う見た目の猫ちゃんが生成されるよ！
-        final String roboUrl = 'https://robohash.org/${keyword}_${userName}';
-
-        print("生成完了！ 画像URL: $roboUrl");
+        print(
+          "生成完了！ avatar_set=${data['avatar_set']}, seed=${data['seed_number']}, URL: $iconUrl",
+        );
 
         // 動作：Flutterの画面（MainSled）に渡すデータを返す
         return {
           "name": data['name'],
           "role": data['role'],
           "post": data['post'],
-          "icon_url": roboUrl, // 動作：名前ごとにユニークになった画像URLをセット！
+          "icon_url": iconUrl,
         };
       }
     } catch (e) {
       print("GeminiServiceエラー: $e");
     }
     return null;
+  }
+
+  // 動作：Geminiが返した avatar_set / seed_number から robohash のURLを組み立てる
+  String _buildAvatarUrl({
+    required String userName,
+    required dynamic avatarSet,
+    required dynamic seedNumber,
+  }) {
+    const validSets = {'set1', 'set2', 'set3', 'set4'};
+    var set = avatarSet?.toString().trim() ?? 'set1';
+    if (!validSets.contains(set)) {
+      set = 'set1';
+    }
+
+    int seed;
+    if (seedNumber is int) {
+      seed = seedNumber;
+    } else {
+      seed = int.tryParse(seedNumber?.toString() ?? '') ??
+          (userName.hashCode.abs() % 1000) + 1;
+    }
+    seed = seed.clamp(1, 1000);
+
+    // 動作：名前とseedを組み合わせ、同じseedでも別キャラなら別アイコンになるようにする
+    final hashSeed = '${userName}_$seed';
+    return 'https://robohash.org/$hashSeed?set=$set';
   }
 }

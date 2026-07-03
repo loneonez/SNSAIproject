@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:practice/screen/myProfile/my_profile.dart';
+import 'package:practice/screen/myProfile/widget/my_profile.dart';
 
 // 動作：画面の左側からスライドして出てくるメニュー（ドロワー）Widget
 class LeftTab extends StatefulWidget {
@@ -8,6 +8,7 @@ class LeftTab extends StatefulWidget {
   final Function(Map<String, dynamic>) onFavoriteToggle;
   final Function(Map<String, dynamic>) onShareToggle; // 動作：追加
   final Function(Map<String, dynamic>) onChatBubbleOutline; // 動作：追加
+  final Function(Map<String, dynamic>) destination; // 動作：追加
 
   // 動作：コンストラクタで、上の変数を必須（required）で受け取るようにする
   const LeftTab({
@@ -16,6 +17,7 @@ class LeftTab extends StatefulWidget {
     required this.onFavoriteToggle,
     required this.onShareToggle, // 動作：追加
     required this.onChatBubbleOutline, // 動作：追加
+    required this.destination,
   });
 
   @override

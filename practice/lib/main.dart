@@ -4,7 +4,6 @@ import 'package:practice/screen/startScreen/start_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  //flutterの初期化処理が完全に終わるのを待つ
   WidgetsFlutterBinding.ensureInitialized();
 
   //firebaseをアプリ起動時に初期化する

@@ -3,6 +3,7 @@ import 'package:practice/screen/DMscreen/dm_screen.dart';
 import 'package:practice/screen/localUserProfile/widget/poset_dm_tab.dart';
 import 'package:practice/screen/localUserProfile/widget/user_icon.dart';
 import 'package:practice/screen/localUserProfile/widget/user_introduction.dart';
+import 'package:practice/screen/localUserProfile/widget/follow_button.dart';
 
 class LocalUser extends StatelessWidget {
   final Map<String, dynamic> userData;
@@ -37,7 +38,6 @@ class LocalUser extends StatelessWidget {
               ),
             ),
             onTap: () {
-              // 動作：Navigator.push ではなく showDialog を使ってポップアップを表示！
               showDialog(
                 context: context,
                 barrierDismissible: true, // 動作：背景（暗い部分）をタップしたら閉じる
@@ -81,7 +81,16 @@ class LocalUser extends StatelessWidget {
           // --- 動作：プロフィール画面の見出しとDMボタンの配置エリア ---
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: PosetDmTab(userData: userData),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // 💡 動作：元々あった見出し＆DMボタンの領域をExpandedで広げます
+                Expanded(child: PosetDmTab(userData: userData)),
+                const SizedBox(width: 12),
+                // 🔥 動作追加：右端に新しく作ったカプセル型のフォローボタンを綺麗に配置！
+                FollowButton(userData: userData),
+              ],
+            ),
           ),
 
           const Divider(color: Colors.white24, height: 1), // 区切り線
