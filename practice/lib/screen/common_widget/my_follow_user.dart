@@ -11,6 +11,7 @@ class MyFollowUser extends StatelessWidget {
       length: 2, // 動作：「フォロー中」「フォロワー」の2つのタブ
       child: Scaffold(
         backgroundColor: Colors.black,
+      
         appBar: AppBar(
           backgroundColor: Colors.black,
           elevation: 0,

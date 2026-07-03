@@ -36,7 +36,7 @@ class PostService {
       if (currentStatus == false) {
         // 動作：1〜100までのランダムな数字（サイコロの目）を引きます
         final int lottery = Random().nextInt(100) + 1;
-        print("【確率ガチャ】サイコロの目は… [$lottery] でした！（1〜30なら30%の確率で当選です）");
+        print("【確率ガチャ】サイコロの目は… [$lottery] でした。（1〜30なら30%の確率で当選です）");
 
         // 動作：30%の確率（サイコロの目が30以下）を引き当てた場合の処理
         if (lottery <= 30) {
@@ -45,16 +45,42 @@ class PostService {
           // 動作：3分間（180秒）待ってから内部の処理を自動実行するタイマーを仕込みます
           // 🚨 注意：裏で待っている間にアプリを完全にシャットダウンすると消えちゃうけど、
           // 起動したまま別の画面を見たり操作していれば、3分後に確実に発動するよ！
-          Future.delayed(const Duration(seconds: 180), () async {
-            print("⏰【タイマー発動】いいねを押してから3分が経過しました！AIのフォローバック処理を開始します。");
+          // 📝 post_service.dart のタイマーの中身をこのように修正します
+          Future.delayed(const Duration(seconds: 3), () async {
+            try {
+              // 💡 投稿データからAIの「名前」を取得（これをユーザーID代わりにします）
+              final String aiName = post['user'] ?? '不明なAI';
 
-            // 💡 動作：ここに将来、通知コレクション（notifications）に「フォローされました」と追加するコードを書きます
-            // await _firestore.collection('notifications').add({ ... });
-            print("👤【AIアクション】AIキャラクターがあなたをフォローしました！");
+              // ❶ まず、usersコレクション側にそのAIの情報（名前、アイコン、設定）が存在するか確認、なければ自動で作る
+              final aiUserDoc = _firestore.collection('users').doc(aiName);
+              final docSnapshot = await aiUserDoc.get();
+
+              if (!docSnapshot.exists) {
+                await aiUserDoc.set({
+                  'user_name': aiName,
+                  'user_icon_url':
+                      post['icon'] ?? 'https://robohash.org/$aiName',
+                  'role': post['role'] ?? 'AIキャラクター',
+                  'introduce': post['content'] ?? 'よろしくお願いします！',
+                });
+              }
+
+              // ❷ 次に、自分のフォロワー（users/my_profile/followers）に、そのAIの部屋（ドキュメントID: aiName）を作ります
+              await _firestore
+                  .collection('users')
+                  .doc('my_profile')
+                  .collection('followers')
+                  .doc(aiName) // 👈 ここをAIの名前にするだけで、自動的に上のusersと紐付きます！
+                  .set({'timestamp': FieldValue.serverTimestamp()});
+
+              print("👤【Firebase更新】$aiName をフォロワー一覧に紐付けました！");
+            } catch (e) {
+              print("🚨エラー: $e");
+            }
           });
         } else {
           // 動作：31以上の数字を引いてしまった、残り70%のハズレ枠だった場合の処理
-          print("❌【ハズレ】今回はAIからフォローが来ない70%の枠でした。");
+          print("❌今回はAIからフォローが来ない70%の枠");
         }
       }
     } catch (e) {
