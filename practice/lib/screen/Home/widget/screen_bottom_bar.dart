@@ -51,22 +51,6 @@ class ScreenBottomBar extends StatelessWidget {
                       ),
 
                       // 2. 中央：投稿ボタン（ガラスの上に浮かぶ青い丸）
-                      GestureDetector(
-                        onTap: onPostTap,
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [],
-                          ),
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                      ),
                       IconButton(
                         icon: const Icon(
                           Icons.notification_add,

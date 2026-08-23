@@ -50,6 +50,7 @@ class GeminiService {
 
 【重要】
 出力は、必ず以下のJSON形式のみで返してください。余計な説明や装飾（```json など）は一切不要です。
+配列・リスト形式（[ ] で囲む形）には絶対にせず、必ず単一のオブジェクト { } の形式のみで返してください。
 
 {
   "name": "名前またはハンドルネーム",
@@ -117,7 +118,8 @@ class GeminiService {
     if (seedNumber is int) {
       seed = seedNumber;
     } else {
-      seed = int.tryParse(seedNumber?.toString() ?? '') ??
+      seed =
+          int.tryParse(seedNumber?.toString() ?? '') ??
           (userName.hashCode.abs() % 1000) + 1;
     }
     seed = seed.clamp(1, 1000);

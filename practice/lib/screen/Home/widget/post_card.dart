@@ -24,8 +24,6 @@ class PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // 動作：いいね、共有の状態やカウントを取得（データがなければ初期値をセット）
     final bool isFavorite = post['isFavorite'] ?? false;
-    final bool isShared = post['isShared'] ?? false;
-    final int shareCount = post['shareCount'] ?? 0;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -76,7 +74,7 @@ class PostCard extends StatelessWidget {
 
                   // 動作：SNS風アクションボタンの一覧
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       // 💬 コメントボタン
                       // 💡 動作：中身を無理やり画面遷移させず、親から渡されたコメント用処理をそのまま実行するようにスッキリ直したよ！
@@ -94,36 +92,12 @@ class PostCard extends StatelessWidget {
                       ),
 
                       // リポストボタン（仮の処理）
-                      _buildIconButton(Icons.repeat, Colors.grey, () {}),
 
                       //  いいねボタン
                       _buildIconButton(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
                         isFavorite ? Colors.pink : Colors.grey,
                         onFavoriteTap,
-                      ),
-
-                      // 共有ボタン（横並びにしてアイコンの横に数字を表示）
-                      Row(
-                        children: [
-                          _buildIconButton(
-                            isShared ? Icons.share : Icons.share_outlined,
-                            isShared
-                                ? Colors.green
-                                : Colors.grey, // 動作：共有中なら緑に光る
-                            onShareTap, // 動作：親から届いた共有処理を実行
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '$shareCount', // 動作：共有カウント数を表示
-                            style: TextStyle(
-                              color: isShared
-                                  ? Colors.green
-                                  : Colors.grey, // 動作：数字も連動
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),

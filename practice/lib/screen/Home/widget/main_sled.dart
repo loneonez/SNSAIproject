@@ -45,12 +45,31 @@ class MainSledState extends State<MainSled> {
     });
   }
 
-  // 動作：特定の投稿のコメント用のダミー関数
+  // 動作：try-catch を使ってコメント処理のエラー検知とデータ変化をログ出力する関数
   void toggleCommentDummy(Map<String, dynamic> targetPost) {
-    setState(() {
-      targetPost['isChatBubbleOutline'] =
-          !(targetPost['isChatBubbleOutline'] ?? false);
-    });
+    try {
+      // 動作：処理開始をデバッグログに出力
+      print('🔍 [DEBUG 1] コメントボタンが押されました: ${targetPost['id']}');
+
+      setState(() {
+        // 動作：コメントフラグを true に更新
+        targetPost['isCommented'] = true;
+
+        // 動作：コメント数を1加算（未設定の場合は0として処理）
+        targetPost['commentCount'] = (targetPost['commentCount'] ?? 0) + 1;
+
+        // 動作：吹き出しアイコンの表示切り替え
+        targetPost['isChatBubbleOutline'] =
+            !(targetPost['isChatBubbleOutline'] ?? false);
+      });
+
+      // 動作：更新完了後の投稿データをログに出力して確認
+      print('✅ [DEBUG 2] 更新後の投稿データ: $targetPost');
+    } catch (e, stackTrace) {
+      // 動作：万が一エラーが発生した場合、エラー内容と発生場所をログに出力
+      print('❌ [ERROR] toggleCommentDummy でエラーが発生しました: $e');
+      print('❌ [STACKTRACE]: $stackTrace');
+    }
   }
 
   // 💡 動作：新しくAIの投稿を生成して、Firebaseに保存する関数（Serviceを呼び出す形に変更！）
@@ -128,6 +147,11 @@ class MainSledState extends State<MainSled> {
                   "isFavorite": data['isFavorite'] ?? false,
                   "isShared": data['isShared'] ?? false,
                   "shareCount": data['shareCount'] ?? 0,
+
+                  // 💡 動作追加：コメント状態・カウントも Firebase または初期値から読み込むように設定！
+                  "isCommented": data['isCommented'] ?? false,
+                  "commentCount": data['commentCount'] ?? 0,
+
                   "createdAt": data['createdAt'],
                 };
               }).toList();
@@ -157,9 +181,13 @@ class MainSledState extends State<MainSled> {
                       post: post,
                       onFavoriteTap: () => toggleFavorite(post),
                       onShareTap: () => toggleShare(post),
+
+                      // 💡 動作変更：吹き出しアイコンをタップした時に toggleCommentDummy を実行する！
                       onCommentTap: () {
-                        print('${post['user']} さんの投稿へのコメント画面へ遷移するよ！');
+                        toggleCommentDummy(post);
+                        print('${post['user']} さんの投稿にコメントしたフラグを立てたよ！');
                       },
+
                       onUserTap: () {
                         print('${post['user']} さんのプロフ画面へ遷移するよ！');
                       },

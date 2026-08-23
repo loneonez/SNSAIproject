@@ -32,43 +32,65 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       key: _scaffoldKey, // 動作：キーを登録
       backgroundColor: Colors.black,
+
+      // 💡 動作：画面右下に配置する丸い「新規投稿（＋）」ボタン
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blueAccent, // 動作：ボタンの背景色（青色）
+        shape: const CircleBorder(), // 動作：丸い形状にセット
+        onPressed: () {
+          // 動作：ボタンを押したら投稿作成画面（PostScreen）へ移動
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PostScreen()),
+          );
+        },
+        child: const Icon(
+          Icons.add, // 動作：プラスアイコン
+          color: Colors.white,
+          size: 28,
+        ),
+      ),
+
       bottomNavigationBar: ScreenBottomBar(
         // 動作：ホームボタンが押されたとき
         onHomeTap: () {
-          // 💡 動作解説：今いる画面が HomeScreen なので、新しく push（開く）するのではなく、
-          // もし他の画面から戻ってきた時のために、この中身は一旦空っぽ（または一番上までスクロール等）にするのが自然だよ！
           print("ホーム画面にいるので何もしません");
         },
 
         // 動作：投稿ボタンが押されたとき
         onPostTap: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => const PostScreen(),
-          ), // 💡 動作：MaterialPageRoute をここでしっかり閉じます
+          MaterialPageRoute(builder: (context) => const PostScreen()),
         ),
 
         onNotification: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => const NotificationScreen(),
-          ), // 💡 動作：MaterialPageRoute をここでしっかり閉じます
+          MaterialPageRoute(builder: (context) => const NotificationScreen()),
         ),
 
         // 動作：DMボタンが押されたとき
         onDmTap: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => DmScreen(userData: userData),
-          ), // 💡 動作：MaterialPageRoute をここでしっかり閉じます
+          MaterialPageRoute(builder: (context) => DmScreen(userData: userData)),
         ),
-      ), // 💡 動作：ScreenBottomBar をここで閉じます
+      ),
+
       // 動作：左からスライドして出てくるメニュー（LeftTab）
       drawer: LeftTab(
         // 動作：大元のMainSledが準備できていれば、いいねがついた投稿だけを絞り込んで渡します
         likedPosts: _mainSledKey.currentState != null
             ? _mainSledKey.currentState!.posts
                   .where((post) => post['isFavorite'] == true)
+                  .toList()
+            : [],
+
+        commentedPosts: _mainSledKey.currentState != null
+            ? _mainSledKey.currentState!.posts
+                  .where(
+                    (post) =>
+                        (post['commentCount'] ?? 0) > 0 ||
+                        post['isCommented'] == true,
+                  )
                   .toList()
             : [],
 
@@ -98,16 +120,10 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent, // 動作：背景を透明に
         elevation: 0, // 動作：影を消す
-        // 💡 動作追加：左側のアイコンエリアの横幅を明示的に指定して、中央のtitleスペースを広く確保します
-        leadingWidth: 56,
-
+        leadingWidth: 56, // 動作：左側のアイコンエリアの幅を確保
         // --- 1. 左端のアイコンエリア ---
         leading: Padding(
-          padding: const EdgeInsets.only(
-            left: 12.0,
-            top: 8.0,
-            bottom: 8.0,
-          ), // 動作：左側に少し余白を作ります
+          padding: const EdgeInsets.only(left: 12.0, top: 8.0, bottom: 8.0),
           child: GestureDetector(
             onTap: () {
               // 動作：アイコンをタップした時にメニュー（Drawer）を開きます
@@ -123,27 +139,24 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
 
         // --- 2. 中央のロゴ＆アプリ名エリア ---
-        // 💡 動作修正：Rowではなく、直接まとめたクローズドな要素として中央に配置します
         title: SizedBox(
-          height: 40, // 動作：AppBarの高さに合わせる
+          height: 40,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center, // 動作：ロゴと文字を中央寄せ
-            mainAxisSize: MainAxisSize.min, // 動作：中身のサイズにきゅっと縮める
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // 動作：ロゴ画像を表示
               Image.asset(
-                'assets/ais_home_logo.png', // 💡 動作：直したファイル名
-                width: 30, // 動作：並んだ時にバランスの良いサイズに変更
+                'assets/ais_home_logo.png',
+                width: 30,
                 height: 30,
                 fit: BoxFit.contain,
               ),
-              const SizedBox(width: 6), // 動作：ロゴと文字の間の隙間
-              // 動作：アプリ名「Ais」
+              const SizedBox(width: 6),
               const Text(
                 'Ais',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18, // 動作：すっきり見えるフォントサイズ
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.0,
                 ),
@@ -151,19 +164,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        centerTitle: true, // 動作：Android・iOS問わず、強制的にtitleを画面中央に固定
+        centerTitle: true,
       ),
 
       // 動作：メインコンテンツ（タイムライン表示エリア）
       body: Stack(
         children: [
-          // 動作：タイムライン本体。キーをセットしてHomeScreenから中身を触れるようにします
           SafeArea(child: MainSled(key: _mainSledKey)),
-
-          const Align(
-            alignment: Alignment.bottomCenter,
-            // child: ScreenBottomBar(),
-          ),
+          const Align(alignment: Alignment.bottomCenter),
         ],
       ),
     );
